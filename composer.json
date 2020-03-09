@@ -1,0 +1,15 @@
+{
+    "require": {
+        "graphp/graphviz": "^0.2.2",
+        "ext-http": "*"
+    }
+    ,
+    "require-dev": {
+        "roave/security-advisories": "dev-master"
+    },
+    "autoload": {
+        "psr-4": {
+            "Z99Lexer\\" : "src/"
+        }
+    }
+}
