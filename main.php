@@ -5,6 +5,7 @@ require 'vendor/autoload.php';
 use Z99Lexer\Exceptions\LexerException;
 use Z99lexer\FSM\FSM;
 use Z99Lexer\Lexer;
+use Z99Lexer\Stream\FileStream;
 
 function token_to_string($token) {
     $line = $token[0] ?? 'NULL';
@@ -35,7 +36,8 @@ function identifier_to_string($id, $identifier) {
  */
 $fsm = require 'create_fsm.php';
 
-$lexer = new Lexer(file_get_contents('example.z99'), $fsm);
+$stream = new FileStream('example.z99');
+$lexer = new Lexer($stream, $fsm);
 
 try {
     $lexer->tokenize();

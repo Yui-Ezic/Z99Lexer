@@ -6,6 +6,7 @@ namespace Z99Lexer;
 
 use Z99Lexer\FSM\FSM;
 use Z99Lexer\FSM\State;
+use Z99Lexer\Stream\CharStreamInterface;
 
 class Lexer implements LexerWriterInterface
 {
@@ -14,7 +15,7 @@ class Lexer implements LexerWriterInterface
     private $tokens = [];
 
 
-    private $source;
+    private $stream;
 
     private $fsm;
 
@@ -23,9 +24,9 @@ class Lexer implements LexerWriterInterface
      */
     private $state;
 
-    public function __construct($string, FSM $fsm)
+    public function __construct(CharStreamInterface $stream, FSM $fsm)
     {
-        $this->source = str_split($string);
+        $this->stream = $stream;
 
         $this->fsm = $fsm;
 
@@ -34,12 +35,20 @@ class Lexer implements LexerWriterInterface
 
     public function tokenize() : void
     {
-        $current = 0;
-        $length = count($this->source);
-        $line = 1;
+        $char = $this->stream->read();
+        if ($char === CharStreamInterface::EOF) {
+            return;
+        }
+
         $string = '';
-        while ($current < $length) {
-            $char = $this->source[$current];
+        $line = 1;
+
+        $done = false;
+
+        while (!$done) {
+            if ($char === CharStreamInterface::EOF) {
+                $done = True;
+            }
 
             if (in_array($char,["\n", "\r\n", "\n\r'"], true)) {
                 $line++;
@@ -54,12 +63,14 @@ class Lexer implements LexerWriterInterface
             if ($this->state->isFinal()) {
                 $this->state->handle($this, $string, $line);
                 $string = '';
-                if ($this->state->isNeedNext()) {
-                    $current++;
+
+                if (!$done && $this->state->isNeedNext()) {
+                    $char = $this->stream->read();
                 }
+
                 $this->state = $this->fsm->getStartState();
-            } else {
-                $current++;
+            } elseif (!$done) {
+                $char = $this->stream->read();
             }
         }
     }
