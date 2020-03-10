@@ -1,12 +1,21 @@
 <?php
 
+use Z99Lexer\Exceptions\LexerException;
+use Z99Lexer\FSM\FSM;
+use Z99Lexer\FSM\TrigerTypes;
+use Z99Lexer\LexerWriterInterface;
+
 return (static function (){
-    $fsm = new \Z99Lexer\FSM\FSM();
+
+    $keywords = ['program', 'var', 'begin', 'read', 'write', 'repeat', 'until', 'if', 'then', 'fi'];
+    $types = ['int', 'real', 'bool'];
+    $boolConstants = ['true', 'false'];
+
+    $fsm = new FSM();
 
     $fsm->addStart(0);
 
     $fsm->addState(1);
-    $fsm->addState(2);
     $fsm->addState(3);
     $fsm->addState(4);
     $fsm->addState(5);
@@ -14,48 +23,106 @@ return (static function (){
     $fsm->addState(7);
     $fsm->addState(8);
 
-    $fsm->addFinalState(-1, static function (string $string) {
-        if ($string === 'if') {
-            return 'keyword';
+    $fsm->addFinalState(-1, static function (LexerWriterInterface $writer, string $string, int $line) {
+        if ($string !== 'end.') {
+            throw new LexerException('Unknown keyword.', $string, $line);
         }
-    }, false);
-    $fsm->addFinalState(-2, static function () {
-    }, false);
-    $fsm->addFinalState(-3, static function () {
-    }, false);
-    $fsm->addFinalState(-4, static function () {
-    }, false);
-    $fsm->addFinalState(-5, static function () {
-    }, false);
-    $fsm->addFinalState(-6, static function () {
-    }, false);
-    $fsm->addFinalState(-7, static function () {
-    }, false);
-    $fsm->addFinalState(-8, static function () {
-    }, false);
-    $fsm->addFinalState(-9, static function () {
-    }, false);
-    $fsm->addFinalState(-10, static function () {
-    }, false);
-    $fsm->addFinalState(-11, static function () {
-    }, false);
-    $fsm->addFinalState(-12, static function () {
-    }, false);
-    $fsm->addFinalState(-13, static function () {
-    }, false);
-    $fsm->addFinalState(-14, static function () {
-        return 'RelOp';
+
+        $writer->addToken($line, $string, 'Keyword');
     });
 
-    $fsm->addFinalState('error', static function () {
-    }, false);
-    $fsm->addFinalState('error2', static function () {
+    $fsm->addFinalState(-2, static function (LexerWriterInterface $writer, string $string, int $line) use ($keywords, $types, $boolConstants) {
+        $index = null;
+        $string = substr($string, 0, -1);
+        if (in_array($string, $keywords, true)) {
+            $token = 'Keyword';
+        } elseif (in_array($string, $types, true)) {
+            $token = 'Type';
+        } elseif (in_array($string, $boolConstants, true)) {
+            $token = 'BoolConst';
+        } else {
+            $token = 'Ident';
+            $index = $writer->addIdentifier($string);
+        }
+
+        $writer->addToken($line, $string, $token, $index);
     }, false);
 
-    $fsm->addTrigger('ws', 0, 0);
-    $fsm->addTrigger('letter', 0, 1);
-    $fsm->addTrigger('digit', 0, 4);
-    $fsm->addTrigger('dot', 0, 6);
+    $fsm->addFinalState(-3, static function (LexerWriterInterface $writer, string $string, int $line) {
+        $string = substr($string, 0, -1);
+        $index = $writer->addConst((int)$string);
+        $writer->addToken($line, $string, 'IntNum', $index);
+    }, false);
+
+    $fsm->addFinalState(-4, static function (LexerWriterInterface $writer, string $string, int $line) {
+        $string = substr($string, 0, -1);
+        $index = $writer->addConst((float)$string);
+        $writer->addToken($line, $string, 'RealNum', $index);
+    }, false);
+
+    $fsm->addFinalState(-5, static function (LexerWriterInterface $writer, string $string, int $line) {
+        $string = substr($string, 0, -1);
+        $writer->addToken($line, $string, 'AssignOp');
+    }, false);
+
+    $fsm->addFinalState(-6, static function (LexerWriterInterface $writer, string $string, int $line) {
+        $writer->addToken($line, $string, 'Plus');
+    });
+
+    $fsm->addFinalState(-7, static function (LexerWriterInterface $writer, string $string, int $line) {
+        $writer->addToken($line, $string, 'Minus');
+    });
+
+    $fsm->addFinalState(-8, static function (LexerWriterInterface $writer, string $string, int $line) {
+        $writer->addToken($line, $string, 'Star');
+    });
+
+    $fsm->addFinalState(-9, static function (LexerWriterInterface $writer, string $string, int $line) {
+        $writer->addToken($line, $string, 'Slash');
+    });
+
+    $fsm->addFinalState(-10, static function (LexerWriterInterface $writer, string $string, int $line) {
+        $writer->addToken($line, $string, 'RelOp');
+    });
+
+    $fsm->addFinalState(-11, static function (LexerWriterInterface $writer, string $string, int $line) {
+        $writer->addToken($line, $string, 'LBracket');
+    });
+
+    $fsm->addFinalState(-12, static function (LexerWriterInterface $writer, string $string, int $line) {
+        $writer->addToken($line, $string, 'RBracket');
+    });
+
+    $fsm->addFinalState(-13, static function (LexerWriterInterface $writer, string $string, int $line) {
+        $writer->addToken($line, $string, 'Dot');
+    }, false);
+
+    $fsm->addFinalState(-14, static function (LexerWriterInterface $writer, string $string, int $line) {
+        $writer->addToken($line, $string, 'Comma');
+    });
+
+    $fsm->addFinalState(-15, static function (LexerWriterInterface $writer, string $string, int $line) {
+        $writer->addToken($line, $string, 'Colon');
+    });
+
+    $fsm->addFinalState(-16, static function (LexerWriterInterface $writer, string $string, int $line) {
+        $writer->addToken($line, $string, 'Semi');
+    });
+
+    $fsm->addFinalState(-17, static function (LexerWriterInterface $writer, string $string, int $line) {
+        $writer->addToken($line, $string, 'RelOp');
+    }, false);
+
+    $fsm->addFinalState('error', static function (LexerWriterInterface $writer, string $string, int $line) {
+        throw new LexerException('Unknown char.', $string, $line);
+    }, false);
+
+    $fsm->addTrigger(TrigerTypes::WS, 0, 0);
+    $fsm->addTrigger(TrigerTypes::EOL, 0, 0);
+    $fsm->addTrigger(TrigerTypes::EOF, 0, 0);
+    $fsm->addTrigger(TrigerTypes::LETTER, 0, 1);
+    $fsm->addTrigger(TrigerTypes::DIGIT, 0, 4);
+    $fsm->addTrigger(TrigerTypes::DOT, 0, 6);
     $fsm->addTrigger('=', 0, 7);
     $fsm->addTrigger('>', 0, 8);
     $fsm->addTrigger('<', 0, 8);
@@ -66,36 +133,35 @@ return (static function (){
     $fsm->addTrigger('/', 0, -9);
     $fsm->addTrigger('(', 0, -11);
     $fsm->addTrigger(')', 0, -12);
-    $fsm->addTrigger('dot', 0, -13);
-    $fsm->addTrigger('>', 0, -14);
-    $fsm->addTrigger('other', 0, 'error');
+    $fsm->addTrigger(',', 0, -14);
+    $fsm->addTrigger(':', 0, -15);
+    $fsm->addTrigger(';', 0, -16);
+    $fsm->addTrigger(FSM::DEFAULT_STATE, 0, 'error');
 
-    $fsm->addTrigger('letter', 1, 1);
-    $fsm->addTrigger('dot', 1, 2);
-    $fsm->addTrigger('other', 1, -1);
-    $fsm->addTrigger('digit', 1, 3);
+    $fsm->addTrigger(TrigerTypes::LETTER, 1, 1);
+    $fsm->addTrigger(TrigerTypes::DOT, 1, -1);
+    $fsm->addTrigger(FSM::DEFAULT_STATE, 1, -2);
+    $fsm->addTrigger(TrigerTypes::DIGIT, 1, 3);
 
-    $fsm->addTrigger('other', 2, -1);
+    $fsm->addTrigger(FSM::DEFAULT_STATE, 3, -2);
+    $fsm->addTrigger(TrigerTypes::LETTER, 3, 3);
+    $fsm->addTrigger(TrigerTypes::DIGIT, 3, 3);
 
-    $fsm->addTrigger('other', 3, -2);
-    $fsm->addTrigger('letter', 3, 3);
-    $fsm->addTrigger('digit', 3, 3);
+    $fsm->addTrigger(TrigerTypes::DIGIT, 4, 4);
+    $fsm->addTrigger(FSM::DEFAULT_STATE, 4, -3);
+    $fsm->addTrigger(TrigerTypes::DOT, 4, 5);
 
-    $fsm->addTrigger('digit', 4, 4);
-    $fsm->addTrigger('other', 4, -3);
-    $fsm->addTrigger('dot', 4, 5);
+    $fsm->addTrigger(FSM::DEFAULT_STATE, 5, -4);
+    $fsm->addTrigger(TrigerTypes::DIGIT, 5, 5);
 
-    $fsm->addTrigger('other', 5, -4);
-    $fsm->addTrigger('digit', 5, 5);
+    $fsm->addTrigger(TrigerTypes::DIGIT, 6, 5);
+    $fsm->addTrigger(FSM::DEFAULT_STATE, 6, -13);
 
-    $fsm->addTrigger('digit', 6, 5);
-    $fsm->addTrigger('other', 6, -13);
-
-    $fsm->addTrigger('other', 7, -5);
+    $fsm->addTrigger(FSM::DEFAULT_STATE, 7, -5);
     $fsm->addTrigger('=', 7, -10);
 
     $fsm->addTrigger('=', 8, -10);
-    $fsm->addTrigger('other', 8, 'error2');
+    $fsm->addTrigger(FSM::DEFAULT_STATE, 8, -17);
 
     return $fsm;
 })();

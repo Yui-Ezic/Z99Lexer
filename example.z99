@@ -1,0 +1,16 @@
+program first
+var i: int;
+    sum, value : real;
+begin
+    sum = 0.0;
+    i = 1;
+    repeat
+        read (value);
+        sum = sum + value;
+        write(i, sum);
+        i = i + 1;
+    until i <= 100;
+
+    sum = sum / 100;
+    write(sum);
+end.
