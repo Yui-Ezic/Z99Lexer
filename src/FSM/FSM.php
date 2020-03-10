@@ -7,9 +7,12 @@ namespace Z99Lexer\FSM;
 use Fhaculty\Graph\Graph;
 use Fhaculty\Graph\Vertex;
 use Graphp\GraphViz\GraphViz;
+use LogicException;
 
 class FSM
 {
+    public const DEFAULT_STATE = 'default';
+
     /**
      * @var Graph
      */
@@ -45,7 +48,7 @@ class FSM
     public function getStartState() : State
     {
         if ($this->start_state === null) {
-            throw new \LogicException("Final state not set");
+            throw new LogicException('Final state not set');
         }
 
         return $this->start_state;
@@ -63,7 +66,7 @@ class FSM
         $from = $this->states[$from];
         $to = $this->states[$to];
 
-        if ($trigger === 'other') {
+        if ($trigger === self::DEFAULT_STATE) {
             $from->setDefault($to);
         } else {
             $from->addTrigger($trigger, $to);

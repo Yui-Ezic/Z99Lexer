@@ -1,7 +1,8 @@
 {
     "require": {
         "graphp/graphviz": "^0.2.2",
-        "ext-http": "*"
+        "ext-http": "*",
+        "ext-ctype": "*"
     }
     ,
     "require-dev": {
