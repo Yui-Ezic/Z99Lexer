@@ -2,31 +2,35 @@
 
 require 'vendor/autoload.php';
 
+use Z99Lexer\Constant;
 use Z99Lexer\Exceptions\LexerException;
 use Z99lexer\FSM\FSM;
+use Z99Lexer\Identifier;
 use Z99Lexer\Lexer;
 use Z99Lexer\Stream\FileStream;
+use Z99Lexer\Token;
 
-function token_to_string($token) {
-    $line = $token[0] ?? 'NULL';
-    $string = $token[1] ?? 'NULL';
-    $tokenName = $token[2] ?? 'NULL';
-    $index = $token[3] ?? 'NULL';
+function token_to_string(Token $token) {
     return sprintf('@%02d  %-10s %-10s %2s',
-            $line,
-            $tokenName,
-            "'$string'",
-            $index
+            $token->getLine(),
+            $token->getType(),
+            "'" . $token->getString() . "'",
+            (string)$token->getIndex() ?: 'NULL'
         );
 }
 
-function identifier_to_string($id, $identifier) {
-    $name = $identifier[0] ?? 'NULL';
-    $type = $identifier[1] ?? 'NULL';
+function constant_to_string(Constant $constant) {
+    return sprintf('@%02d  %-10s',
+        $constant->getId(),
+        (string)$constant->getValue()
+    );
+}
+
+function identifier_to_string(Identifier $identifier) {
     return sprintf('@%02d  %-10s %-10s',
-        $id,
-        $name,
-        $type
+        $identifier->getId(),
+        $identifier->getName(),
+        $identifier->getType()
     );
 }
 
@@ -52,15 +56,15 @@ try {
     fwrite($file, PHP_EOL);
 
     fwrite($file, 'Constants:' . PHP_EOL);
-    foreach ($lexer->getConstants() as $id => $const) {
-        $string = "$id $const" . PHP_EOL;
+    foreach ($lexer->getConstants() as $const) {
+        $string = constant_to_string($const) . PHP_EOL;
         fwrite($file, $string);
     }
     fwrite($file, PHP_EOL);
 
     fwrite($file, 'Identifiers:' . PHP_EOL);
-    foreach ($lexer->getIdentifiers() as $id => $identifier) {
-        $string = identifier_to_string($id, $identifier) . PHP_EOL;
+    foreach ($lexer->getIdentifiers() as $identifier) {
+        $string = identifier_to_string($identifier) . PHP_EOL;
         fwrite($file, $string);
     }
     fwrite($file, PHP_EOL);

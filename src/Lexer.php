@@ -8,15 +8,41 @@ use Z99Lexer\FSM\FSM;
 use Z99Lexer\FSM\State;
 use Z99Lexer\Stream\CharStreamInterface;
 
-class Lexer implements LexerWriterInterface
+class Lexer implements LexerInterface
 {
+    /**
+     * @var int
+     */
+    private $constId = 0;
+
+    /**
+     * @var Constant[]
+     */
     private $constants = [];
+
+    /**
+     * @var int
+     */
+    private $identifierId = 0;
+
+    /**
+     * @var Identifier[]
+     */
     private $identifiers = [];
+
+    /**
+     * @var Token[]
+     */
     private $tokens = [];
 
-
+    /**
+     * @var CharStreamInterface
+     */
     private $stream;
 
+    /**
+     * @var FSM
+     */
     private $fsm;
 
     /**
@@ -24,6 +50,11 @@ class Lexer implements LexerWriterInterface
      */
     private $state;
 
+    /**
+     * Lexer constructor.
+     * @param CharStreamInterface $stream
+     * @param FSM $fsm
+     */
     public function __construct(CharStreamInterface $stream, FSM $fsm)
     {
         $this->stream = $stream;
@@ -33,6 +64,9 @@ class Lexer implements LexerWriterInterface
         $this->state = $fsm->getStartState();
     }
 
+    /**
+     * @inheritDoc
+     */
     public function tokenize() : void
     {
         $char = $this->stream->read();
@@ -80,14 +114,33 @@ class Lexer implements LexerWriterInterface
      */
     public function addConst($const): int
     {
-        if ($id = array_search($const, $this->constants, true)) {
+        if ($id = $this->findConst($const)) {
             return $id;
         }
 
-        $id = count($this->constants);
-        $this->constants[$id] = $const;
+        $id = $this->constId++;
+        $this->constants[$id] = new Constant($id, $const);
 
         return $id;
+    }
+
+    /**
+     * Returns id of constant if find else null
+     *
+     * @param $const
+     * @return int|null
+     */
+    private function findConst($const) : ?int
+    {
+        $array = array_map(static function (Constant $constant) {
+            return $constant->getValue();
+        }, $this->constants);
+
+        if ($id = array_search($const, $array, true)) {
+            return $id;
+        }
+
+        return null;
     }
 
     /**
@@ -95,16 +148,33 @@ class Lexer implements LexerWriterInterface
      */
     public function addIdentifier($name, $type = null): int
     {
-        if ($id = array_search($name, array_map(function ($item) {
-            return $item[0];
-        },$this->identifiers), true)) {
+        if ($id = $this->findIdentifier($name)) {
             return $id;
         }
 
-        $id = count($this->identifiers);
-        $this->identifiers[$id] = [$name, $type];
+        $id = $this->identifierId++;
+        $this->identifiers[$id] = new Identifier($id, $name, $type);
 
         return $id;
+    }
+
+    /**
+     * Returns id of identifier if find else null
+     *
+     * @param $name
+     * @return int|null
+     */
+    private function findIdentifier($name) : ?int
+    {
+        $array = array_map(static function (Identifier $constant) {
+            return $constant->getName();
+        }, $this->identifiers);
+
+        if ($id = array_search($name, $array, true)) {
+            return $id;
+        }
+
+        return null;
     }
 
     /**
@@ -112,11 +182,11 @@ class Lexer implements LexerWriterInterface
      */
     public function addToken(int $line, string $string, $token, int $index = null): void
     {
-        $this->tokens[] = [$line, $string, $token, $index];
+        $this->tokens[] = new Token($line, $string, $token, $index);
     }
 
     /**
-     * @return array
+     * @return Constant[]
      */
     public function getConstants(): array
     {
@@ -124,7 +194,7 @@ class Lexer implements LexerWriterInterface
     }
 
     /**
-     * @return array
+     * @return Token[]
      */
     public function getTokens(): array
     {
@@ -132,7 +202,7 @@ class Lexer implements LexerWriterInterface
     }
 
     /**
-     * @return array
+     * @return Identifier[]
      */
     public function getIdentifiers(): array
     {

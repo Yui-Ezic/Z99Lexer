@@ -1,6 +1,6 @@
 Tokens:
 @01  Keyword    'program'  NULL
-@01  Ident      'first'     0
+@01  Ident      'first'    NULL
 @02  Keyword    'var'      NULL
 @02  Ident      'i'         1
 @02  Colon      ':'        NULL
@@ -15,7 +15,7 @@ Tokens:
 @04  Keyword    'begin'    NULL
 @05  Ident      'sum'       2
 @05  AssignOp   '='        NULL
-@05  RealNum    '0.0'       0
+@05  RealNum    '0.0'      NULL
 @05  Semi       ';'        NULL
 @06  Ident      'i'         1
 @06  AssignOp   '='        NULL
@@ -65,13 +65,13 @@ Tokens:
 @16  Keyword    'end.'     NULL
 
 Constants:
-0 0
-1 1
-2 100
+@00  0         
+@01  1         
+@02  100       
 
 Identifiers:
-@00  first      NULL      
-@01  i          NULL      
-@02  sum        NULL      
-@03  value      NULL      
+@00  first                
+@01  i                    
+@02  sum                  
+@03  value                
 
