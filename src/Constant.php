@@ -38,4 +38,15 @@ class Constant
         return $this->value;
     }
 
+    /**
+     * @return string
+     */
+    public function __toString() : string
+    {
+        return sprintf('@%02d  %-10s',
+            $this->getId(),
+            (string)$this->getValue()
+        );
+    }
+
 }

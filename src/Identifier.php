@@ -51,4 +51,16 @@ class Identifier
     {
         return $this->type;
     }
+
+    /**
+     * @return string
+     */
+    public function __toString() : string
+    {
+        return sprintf('@%02d  %-10s %-10s',
+            $this->getId(),
+            $this->getName(),
+            $this->getType()
+        );
+    }
 }
