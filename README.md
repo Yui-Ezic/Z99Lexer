@@ -24,7 +24,7 @@ end.
 Lexer written with using the [Finite State Machine](https://en.wikipedia.org/wiki/Finite-state_machine)
 which is represented by Z99Lexer\FSM\FSM class.
 
-```$xslt
+```php
 require 'vendor/autoload.php';
 
 $fsm = new Z99Lexer\FSM\FSM();
@@ -33,15 +33,45 @@ $fsm = new Z99Lexer\FSM\FSM();
 The initialization of the state graph occurs in the file "create_fsm.php". You can run ```visualize()``` 
 method to see graph of states as picture.
 
+> dgt - digit  
+> chr - character  
+> def - default  
+> WS - white space  
+
 ![gra3231 tmp](https://user-images.githubusercontent.com/21062493/76415790-8971a680-63a2-11ea-9a0b-93469e8555a0.png)
 
 For convenience, all final states begin with a minus and are highlighted in blue. 0 is start state.
 
-All final state has callback function which handle the substring and add token to tokens table.
+## Create own grammar
+Firstly create the start State.
 
-
+```php
+$fsm->addStart(0);
 ```
-$fsm->addFinalState(-2, static function (LexerWriterInterface $writer, string $string, int $line) use ($keywords, $types, $boolConstants) {
+
+Than several intermediate state
+
+```php
+$fsm->addState(1);
+$fsm->addState(2);
+```
+
+And add final state which has callback function which handle the substring and adds 
+token to tokens table. The last argument tells the lexer when it's move to the initial 
+state whether to take the next character or not.
+
+```php
+$keywords = [
+    'program', 'var', 'begin', 
+    'read', 'write', 'repeat', 
+    'until', 'if', 'then', 'fi'
+];
+$types = ['int', 'real', 'bool'];
+$boolConstants = ['true', 'false'];
+
+$fsm->addFinalState(-2, 
+    static function (LexerWriterInterface $writer, string $string, int $line) 
+    use ($keywords, $types, $boolConstants) {
         $index = null;
         $string = substr($string, 0, -1);
         if (in_array($string, $keywords, true)) {
@@ -57,8 +87,35 @@ $fsm->addFinalState(-2, static function (LexerWriterInterface $writer, string $s
 
         $writer->addToken($line, $string, $token, $index);
     }, false);
+
+$fsm->addFinalState('error', 
+    static function (LexerWriterInterface $writer, string $string, int $line) {
+        throw new LexerException('Unknown char.', $string, $line);
+    });
 ```
 
+Then adds triggers (edges of graph)
+
+```php
+$fsm->addTrigger(TriggerTypes::LETTER, 0, 1);
+$fsm->addTrigger(FSM::DEFAULT_STATE, 0, 'error');
+
+$fsm->addTrigger(TriggerTypes::LETTER, 1, 1);
+$fsm->addTrigger(FSM::DEFAULT_STATE, 1, -2);
+$fsm->addTrigger(TriggerTypes::DIGIT, 1, 2);
+
+$fsm->addTrigger(FSM::DEFAULT_STATE, 2, -2);
+$fsm->addTrigger(TriggerTypes::LETTER, 2, 2);
+$fsm->addTrigger(TriggerTypes::DIGIT, 2, 2);
+```
+
+And display the graph of states
+
+```php
+$fsm->visualize();
+```
+
+![gra283B tmp](https://user-images.githubusercontent.com/21062493/76421275-15d49700-63ac-11ea-9c3f-cdabe7a79033.png)
 ## Lexer
 To create tables of tokens, constants and identifiers you need to create Lexer class
 which receives CharStreamInterface and FSM with our grammar.
@@ -70,7 +127,7 @@ $lexer = new Lexer($stream, $fsm);
 
 And run a ```tokenize()``` method
 
-```$xslt
+```php
 try {
     $lexer->tokenize();
 
