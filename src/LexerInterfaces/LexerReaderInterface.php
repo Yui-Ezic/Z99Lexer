@@ -1,8 +1,12 @@
 <?php
 
 
-namespace Z99Lexer;
+namespace Z99Lexer\LexerInterfaces;
 
+
+use Z99Lexer\Constant;
+use Z99Lexer\Identifier;
+use Z99Lexer\Token;
 
 interface LexerReaderInterface
 {

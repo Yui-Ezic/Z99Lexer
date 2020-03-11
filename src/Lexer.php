@@ -6,6 +6,7 @@ namespace Z99Lexer;
 
 use Z99Lexer\FSM\FSM;
 use Z99Lexer\FSM\State;
+use Z99Lexer\LexerInterfaces\LexerInterface;
 use Z99Lexer\Stream\CharStreamInterface;
 
 class Lexer implements LexerInterface

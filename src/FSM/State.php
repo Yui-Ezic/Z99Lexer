@@ -7,7 +7,7 @@ namespace Z99Lexer\FSM;
 use Fhaculty\Graph\Vertex;
 use http\Exception\InvalidArgumentException;
 use LogicException;
-use Z99Lexer\LexerWriterInterface;
+use Z99Lexer\LexerInterfaces\LexerWriterInterface;
 
 class State
 {

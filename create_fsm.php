@@ -3,7 +3,7 @@
 use Z99Lexer\Exceptions\LexerException;
 use Z99Lexer\FSM\FSM;
 use Z99Lexer\FSM\TrigerTypes;
-use Z99Lexer\LexerWriterInterface;
+use Z99Lexer\LexerInterfaces\LexerWriterInterface;
 
 return (static function (){
 

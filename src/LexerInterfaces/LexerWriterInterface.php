@@ -1,7 +1,7 @@
 <?php
 
 
-namespace Z99Lexer;
+namespace Z99Lexer\LexerInterfaces;
 
 
 interface LexerWriterInterface
