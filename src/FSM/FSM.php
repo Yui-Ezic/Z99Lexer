@@ -9,6 +9,11 @@ use Fhaculty\Graph\Vertex;
 use Graphp\GraphViz\GraphViz;
 use LogicException;
 
+/**
+ * Class FSM (Finite State Machine)
+ *
+ * @package Z99Lexer\FSM
+ */
 class FSM
 {
     public const DEFAULT_STATE = 'default';
@@ -73,6 +78,28 @@ class FSM
         }
     }
 
+    /**
+     * Adds Final state
+     *
+     * @param $id
+     * @param callable $callback
+     *
+     * - The function to be called when the state is reached.
+     * - Its purpose is to process the substring and add the token to the table
+     * - This function receives three arguments: LexerWriterInterface, substring and number of line
+     *
+     * For example:
+     * static function (LexerWriterInterface $writer, string $string, int $line) {
+     *     if ($string !== 'end.') {
+     *         throw new LexerException('Unknown keyword.', $string, $line);
+     *     }
+     *
+     *     $writer->addToken($line, $string, 'Keyword');
+     * })
+     *
+     * @param bool $needNext
+     * @return State
+     */
     public function addFinalState($id, callable $callback, $needNext = true) : State
     {
         $vertex = $this->createVertex($id);
