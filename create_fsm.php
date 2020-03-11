@@ -2,7 +2,7 @@
 
 use Z99Lexer\Exceptions\LexerException;
 use Z99Lexer\FSM\FSM;
-use Z99Lexer\FSM\TrigerTypes;
+use Z99Lexer\FSM\TriggerTypes;
 use Z99Lexer\LexerInterfaces\LexerWriterInterface;
 
 return (static function (){
@@ -117,12 +117,12 @@ return (static function (){
         throw new LexerException('Unknown char.', $string, $line);
     }, false);
 
-    $fsm->addTrigger(TrigerTypes::WS, 0, 0);
-    $fsm->addTrigger(TrigerTypes::EOL, 0, 0);
-    $fsm->addTrigger(TrigerTypes::EOF, 0, 0);
-    $fsm->addTrigger(TrigerTypes::LETTER, 0, 1);
-    $fsm->addTrigger(TrigerTypes::DIGIT, 0, 4);
-    $fsm->addTrigger(TrigerTypes::DOT, 0, 6);
+    $fsm->addTrigger(TriggerTypes::WS, 0, 0);
+    $fsm->addTrigger(TriggerTypes::EOL, 0, 0);
+    $fsm->addTrigger(TriggerTypes::EOF, 0, 0);
+    $fsm->addTrigger(TriggerTypes::LETTER, 0, 1);
+    $fsm->addTrigger(TriggerTypes::DIGIT, 0, 4);
+    $fsm->addTrigger(TriggerTypes::DOT, 0, 6);
     $fsm->addTrigger('=', 0, 7);
     $fsm->addTrigger('>', 0, 8);
     $fsm->addTrigger('<', 0, 8);
@@ -138,23 +138,23 @@ return (static function (){
     $fsm->addTrigger(';', 0, -16);
     $fsm->addTrigger(FSM::DEFAULT_STATE, 0, 'error');
 
-    $fsm->addTrigger(TrigerTypes::LETTER, 1, 1);
-    $fsm->addTrigger(TrigerTypes::DOT, 1, -1);
+    $fsm->addTrigger(TriggerTypes::LETTER, 1, 1);
+    $fsm->addTrigger(TriggerTypes::DOT, 1, -1);
     $fsm->addTrigger(FSM::DEFAULT_STATE, 1, -2);
-    $fsm->addTrigger(TrigerTypes::DIGIT, 1, 3);
+    $fsm->addTrigger(TriggerTypes::DIGIT, 1, 3);
 
     $fsm->addTrigger(FSM::DEFAULT_STATE, 3, -2);
-    $fsm->addTrigger(TrigerTypes::LETTER, 3, 3);
-    $fsm->addTrigger(TrigerTypes::DIGIT, 3, 3);
+    $fsm->addTrigger(TriggerTypes::LETTER, 3, 3);
+    $fsm->addTrigger(TriggerTypes::DIGIT, 3, 3);
 
-    $fsm->addTrigger(TrigerTypes::DIGIT, 4, 4);
+    $fsm->addTrigger(TriggerTypes::DIGIT, 4, 4);
     $fsm->addTrigger(FSM::DEFAULT_STATE, 4, -3);
-    $fsm->addTrigger(TrigerTypes::DOT, 4, 5);
+    $fsm->addTrigger(TriggerTypes::DOT, 4, 5);
 
     $fsm->addTrigger(FSM::DEFAULT_STATE, 5, -4);
-    $fsm->addTrigger(TrigerTypes::DIGIT, 5, 5);
+    $fsm->addTrigger(TriggerTypes::DIGIT, 5, 5);
 
-    $fsm->addTrigger(TrigerTypes::DIGIT, 6, 5);
+    $fsm->addTrigger(TriggerTypes::DIGIT, 6, 5);
     $fsm->addTrigger(FSM::DEFAULT_STATE, 6, -13);
 
     $fsm->addTrigger(FSM::DEFAULT_STATE, 7, -5);

@@ -4,7 +4,7 @@
 namespace Z99Lexer\FSM;
 
 
-class TrigerTypes
+class TriggerTypes
 {
     public const LETTER = 0;
     public const DIGIT = 1;

@@ -45,7 +45,7 @@ class State
 
     public function addTrigger($trigger, State $to): State
     {
-        $triggerName = TrigerTypes::getTypeName($trigger);
+        $triggerName = TriggerTypes::getTypeName($trigger);
         $edge = $this->vertex->createEdgeTo($to->getVertex());
         $edge->setAttribute('graphviz.label', " $triggerName ");
         return $this->triggers[$trigger] = $to;
@@ -53,7 +53,7 @@ class State
 
     public function getNextState($trigger): State
     {
-        $trigger = TrigerTypes::getType($trigger);
+        $trigger = TriggerTypes::getType($trigger);
 
         if (!array_key_exists($trigger, $this->triggers)) {
             if ($this->default === null) {
