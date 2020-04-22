@@ -1,4 +1,14 @@
 {
+    "name": "yui-ezic/z99-lexer",
+    "description": "Php lexer for Z99 (own Pascal-like programming language).",
+    "license": "MIT",
+    "version": "1.0.0",
+    "authors": [
+        {
+            "name": "Misha",
+            "email": "mishan221199@gmail.com"
+        }
+    ],
     "require": {
         "graphp/graphviz": "^0.2.2",
         "ext-http": "*",
