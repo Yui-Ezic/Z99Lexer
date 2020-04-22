@@ -11,7 +11,6 @@
     ],
     "require": {
         "graphp/graphviz": "^0.2.2",
-        "ext-http": "*",
         "ext-ctype": "*"
     }
     ,
