@@ -4,7 +4,9 @@
 namespace Z99Lexer;
 
 
-class Token
+use JsonSerializable;
+
+class Token implements JsonSerializable
 {
     /**
      * @var int
@@ -78,5 +80,16 @@ class Token
             "'" . $this->getString() . "'",
             (string)$this->getIndex() ?: 'NULL'
         );
+    }
+
+    public function jsonSerialize()
+    {
+        return
+            [
+                'line' => $this->getLine(),
+                'type' => $this->getType(),
+                'string' => $this->getString(),
+                'index' => $this->getIndex()
+            ];
     }
 }
