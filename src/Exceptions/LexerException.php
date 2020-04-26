@@ -27,6 +27,6 @@ class LexerException extends LogicException
 
     public function getErrorLine() : int
     {
-        return $this->line;
+        return $this->errorLine;
     }
 }
